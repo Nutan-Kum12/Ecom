@@ -26,22 +26,48 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
 }
 func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	//get json payload
+	log.Println("=== Login Handler Start ===")
+	var payload types.LoginUserPayload
+
+	log.Printf("Request body available: %v", r.Body != nil)
+	log.Printf("Content-Type: %s", r.Header.Get("Content-Type"))
+
+	if err := utils.ParseJSON(r, &payload); err != nil {
+		log.Printf("ParseJSON error: %v", err)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON: %v", err))
+		return
+	}
+	u, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		log.Printf("GetUserByEmail error: %v", err)
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("invalid email or password"))
+		return
+	}
 
 }
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
-	//get json payload\
+	//get json payload
 	log.Println("=== Register Handler Start ===")
 	var payload types.RegisterUserPayload
+
+	log.Printf("Request body available: %v", r.Body != nil)
+	log.Printf("Content-Type: %s", r.Header.Get("Content-Type"))
+
 	if err := utils.ParseJSON(r, &payload); err != nil {
+		log.Printf("ParseJSON error: %v", err)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid JSON: %v", err))
 		return
 	}
+
+	// Always log what was parsed
+	log.Printf("Parsed payload: %+v", payload)
+	log.Printf("FirstName: '%s', LastName: '%s', Email: '%s', Password: '%s'",
+		payload.FirstName, payload.LastName, payload.Email, payload.Password)
+
 	//validate payload
-	// if payload.FirstName == "" || payload.LastName == "" ||
-	// 	payload.Email == "" || payload.Password == "" {
-	// 	utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("all fields are required"))
-	// 	return
-	// }
 	if err := utils.Validate.Struct(payload); err != nil {
+		log.Printf("Validation error: %v", err)
 		error := err.(validator.ValidationErrors)
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", error))
 		return

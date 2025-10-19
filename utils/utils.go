@@ -14,8 +14,7 @@ func ParseJSON(r *http.Request, payload any) error {
 	if r.Body == nil {
 		return fmt.Errorf("request body is empty")
 	}
-	return json.NewDecoder(r.Body).Decode(&payload)
-
+	return json.NewDecoder(r.Body).Decode(payload)
 }
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
