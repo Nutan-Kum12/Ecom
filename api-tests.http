@@ -3,6 +3,7 @@
 
 @baseUrl = http://localhost:8080
 @apiUrl = {{baseUrl}}/api/v1
+@token =
 
 ### Health Check - Test if server is running
 GET {{baseUrl}}/health
@@ -10,7 +11,7 @@ GET {{baseUrl}}/health
 ###
 
 ### API Test - Test basic API functionality  
-GET {{apiUrl}}/test
+# GET {{apiUrl}}/test
 
 ###
 
@@ -67,7 +68,7 @@ Content-Type: application/json
 ###
 
 ### User Login 
-POST {{apiUrl}}/auth/login
+POST {{apiUrl}}/login
 Content-Type: application/json
 
 {

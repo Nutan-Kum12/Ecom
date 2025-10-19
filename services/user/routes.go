@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Nutan-Kum12/Ecom/config"
 	"github.com/Nutan-Kum12/Ecom/services/auth"
 	"github.com/Nutan-Kum12/Ecom/types"
 	"github.com/Nutan-Kum12/Ecom/utils"
@@ -44,7 +45,18 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("invalid email or password"))
 		return
 	}
-
+	if !auth.ComparePassword(u.Password, []byte(payload.Password)) {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("invalid email or password"))
+		return
+	}
+	secretKey := []byte(config.Envs.JWTSecretKey)
+	token, err := auth.CreateJWT(u.ID, secretKey)
+	if err != nil {
+		log.Printf("CreateJWT error: %v", err)
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	//get json payload
