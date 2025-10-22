@@ -61,7 +61,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	//get json payload
 	log.Println("=== Register Handler Start ===")
-	var payload types.RegisterUserPayload
+	var payload types.RegisterUserPayload // Define the payload variable
 
 	log.Printf("Request body available: %v", r.Body != nil)
 	log.Printf("Content-Type: %s", r.Header.Get("Content-Type"))
@@ -90,6 +90,7 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusConflict, fmt.Errorf("user with email %s already exists", payload.Email))
 		return
 	}
+	//hash password
 	hashPassword, err := auth.HashPassword(payload.Password)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
