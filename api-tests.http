@@ -79,7 +79,7 @@ Content-Type: application/json
 ###
 
 ### Get Products 
-# GET {{apiUrl}}/products
+GET {{apiUrl}}/products
 
 ###
 
@@ -92,7 +92,8 @@ Content-Type: application/json
     "name": "iPhone 15",
     "description": "Latest Apple smartphone",
     "price": 999.99,
-    "quantity": 50
+    "quantity": 50,
+    "image_url": "https://example.com/iphone15.jpg"
 }
 # POST {{apiUrl}}/products
 # Content-Type: application/json

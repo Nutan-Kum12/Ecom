@@ -13,6 +13,14 @@ type Store struct {
 func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
 }
+func (s *Store) CreateProduct(product *types.Product) error {
+	_, err := s.db.Exec("INSERT INTO products(name, description, image_url, price, quantity) VALUES(?, ?, ?, ?, ?)",
+		product.Name, product.Description, product.ImageURL, product.Price, product.Quantity)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (s *Store) GetProducts() ([]*types.Product, error) {
 	rows, err := s.db.Query("SELECT * FROM products")
 	if err != nil {
@@ -28,6 +36,19 @@ func (s *Store) GetProducts() ([]*types.Product, error) {
 	}
 	return products, nil
 }
+
+// func (s *Store) GetProductByID(id int) (*types.Product, error) {
+// 	rows, err := s.db.Query("SELECT * FROM products WHERE id = ?", id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+//		if rows.Next() {
+//			return ScanRowIntoProduct(rows)
+//		}
+//		return nil, sql.ErrNoRows
+//	}
 func ScanRowIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	product := new(types.Product) // Create a new Product instance
 
@@ -35,10 +56,10 @@ func ScanRowIntoProduct(rows *sql.Rows) (*types.Product, error) {
 		&product.ID,
 		&product.Name,
 		&product.Description,
-		&product.ImageURL,
-		&product.Quantity,
 		&product.Price,
+		&product.Quantity,
 		&product.CreatedAt,
+		&product.ImageURL,
 	)
 	if err != nil {
 		return nil, err

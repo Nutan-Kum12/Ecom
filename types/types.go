@@ -13,7 +13,7 @@ type User struct {
 }
 type ProductStore interface {
 	GetProducts() ([]*Product, error)
-	GetProductByID(id int) (*Product, error)
+	// GetProductByID(id int) (*Product, error)
 	CreateProduct(product *Product) error
 }
 type Product struct {
@@ -24,6 +24,13 @@ type Product struct {
 	Quantity    int       `json:"quantity" db:"quantity"`
 	Price       float64   `json:"price" db:"price"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+}
+type ProductPayload struct {
+	Name        string  `json:"name" validate:"required"`
+	Description string  `json:"description" validate:"required"`
+	ImageURL    string  `json:"image_url" validate:"required"`
+	Quantity    int     `json:"quantity" validate:"required,min=0"`
+	Price       float64 `json:"price" validate:"required,min=0"`
 }
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
