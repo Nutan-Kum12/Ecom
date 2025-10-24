@@ -24,9 +24,8 @@ func ParseJSON(r *http.Request, payload any) error {
 }
 
 // WriteJSON is used when your server gets data (like from a database)
-//  and needs to send it back to the client, usually in response to a
-//  GET request.
-
+// and needs to send it back to the client, usually in response to a
+// GET request.
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

@@ -71,3 +71,5 @@ type OrderItem struct {
 	Price     float64   `json:"price" db:"price"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
+type CartPayload struct {
+}
