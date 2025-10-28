@@ -49,7 +49,7 @@ func (h *Handler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("invalid email or password"))
 		return
 	}
-	secretKey := []byte(config.Envs.JWTSecretKey)
+	secretKey := []byte(config.Envs.JWTSecret)
 	token, err := auth.CreateJWT(u.ID, secretKey)
 	if err != nil {
 		log.Printf("CreateJWT error: %v", err)

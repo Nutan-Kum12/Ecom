@@ -2,9 +2,21 @@ package product
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/Nutan-Kum12/Ecom/types"
 )
+
+// Generic function to convert any slice to []interface{}
+// use for SQL queries
+func sliceToInterface[T any](slice []T) []interface{} {
+	result := make([]interface{}, len(slice))
+	for i, v := range slice {
+		result[i] = v
+	}
+	return result
+}
 
 type Store struct {
 	db *sql.DB
@@ -37,18 +49,58 @@ func (s *Store) GetProducts() ([]*types.Product, error) {
 	return products, nil
 }
 
-// func (s *Store) GetProductByID(id int) (*types.Product, error) {
-// 	rows, err := s.db.Query("SELECT * FROM products WHERE id = ?", id)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+func (s *Store) GetProductsByID(productIDs []int) ([]*types.Product, error) {
+	placeholder := strings.Repeat(",?", len(productIDs)-1)
+	// placeholder = strings.TrimRight(placeholder, ",")    //
+	query := fmt.Sprintf("SELECT * FROM products WHERE id IN (?%s)", placeholder) //
+	//convert produuctIDs to interface slice
+	// args := make([]interface{}, len(productIDs)) //
+	// for i, v := range productIDs {
+	// 	args[i] = v
+	// }
 
-//		if rows.Next() {
-//			return ScanRowIntoProduct(rows)
-//		}
-//		return nil, sql.ErrNoRows
-//	}
+	//convert productIDs to interface slice using generics
+	args := sliceToInterface(productIDs)
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	products := []*types.Product{} // Slice to hold products
+	// Iterate through the rows and scan each product
+	for rows.Next() {
+		p, err := ScanRowIntoProduct(rows)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}
+func (s *Store) GetProductByID(productID int) (*types.Product, error) {
+	rows, err := s.db.Query("SELECT * FROM products WHERE id = ?", productID)
+	if err != nil {
+		return nil, err
+	}
+
+	p := new(types.Product)
+	for rows.Next() {
+		p, err = ScanRowIntoProduct(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return p, nil
+}
+
+func (s *Store) UpdateProduct(product *types.Product) error {
+	_, err := s.db.Exec("UPDATE products SET name = ?, description = ?, image_url = ?, price = ?, quantity = ? WHERE id = ?",
+		product.Name, product.Description, product.ImageURL, product.Price, product.Quantity, product.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func ScanRowIntoProduct(rows *sql.Rows) (*types.Product, error) {
 	product := new(types.Product) // Create a new Product instance
 

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/Nutan-Kum12/Ecom/services/auth"
 	"github.com/Nutan-Kum12/Ecom/types"
 	"github.com/Nutan-Kum12/Ecom/utils"
 	"github.com/go-playground/validator"
@@ -12,15 +14,19 @@ import (
 )
 
 type Handler struct {
-	store types.ProductStore
+	store     types.ProductStore
+	userstore types.UserStore
 }
 
-func NewHandler(store types.ProductStore) *Handler {
-	return &Handler{store: store}
+func NewHandler(store types.ProductStore, userstore types.UserStore) *Handler {
+	return &Handler{store: store, userstore: userstore}
 }
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", h.handleGetProducts).Methods(http.MethodGet)
-	router.HandleFunc("/products", h.handleCreateProduct).Methods("POST")
+	router.HandleFunc("/products/{productID}", h.handleGetProduct).Methods(http.MethodGet)
+
+	// admin routes
+	router.HandleFunc("/products", auth.WithJWTAuth(h.handleCreateProduct, h.userstore)).Methods(http.MethodPost)
 }
 func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
 	ps, err := h.store.GetProducts()
@@ -30,7 +36,28 @@ func (h *Handler) handleGetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.WriteJSON(w, http.StatusOK, ps)
 }
+func (h *Handler) handleGetProduct(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	str, ok := vars["productID"]
+	if !ok {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing product ID"))
+		return
+	}
 
+	productID, err := strconv.Atoi(str)
+	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid product ID"))
+		return
+	}
+
+	product, err := h.store.GetProductByID(productID)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, product)
+}
 func (h *Handler) handleCreateProduct(w http.ResponseWriter, r *http.Request) {
 	var product types.ProductPayload
 
