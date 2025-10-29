@@ -7,7 +7,7 @@ import (
 )
 
 func getCartItemIDs(items []types.CartItem) ([]int, error) {
-	ids := make([]int, len(items))
+	ids := make([]int, len(items)) // Initialize slice to hold product IDs
 	for i, item := range items {
 		if item.Quantity <= 0 {
 			return nil, fmt.Errorf("invalid quantity for product ID %d", item.ProductID)
@@ -17,7 +17,7 @@ func getCartItemIDs(items []types.CartItem) ([]int, error) {
 	return ids, nil
 }
 func (h *Handler) createOrder(ps []*types.Product, items []types.CartItem, userID int) (int, float64, error) {
-	productMap := make(map[int]*types.Product)
+	productMap := make(map[int]*types.Product) //map product ID to product
 	for _, p := range ps {
 		productMap[p.ID] = p
 	}

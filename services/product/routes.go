@@ -19,7 +19,7 @@ type Handler struct {
 }
 
 func NewHandler(store types.ProductStore, userstore types.UserStore) *Handler {
-	return &Handler{store: store, userstore: userstore}
+	return &Handler{store: store, userstore: userstore} // Store injected and userstore injected
 }
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/products", h.handleGetProducts).Methods(http.MethodGet)

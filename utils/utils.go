@@ -10,17 +10,18 @@ import (
 
 var Validate = validator.New()
 
-// ParseJSON is typically used with POST or PUT methods,
-//
-//	 when the user sends data (like a new item to add to the
-//		database). It reads the JSON from the request and fills
-//		 your Go struct, so you can use that data (for example,
-//			 to add it to the database).
+// ParseJSON is typically used with POST or PUT methods
+// when the user sends data (like a new item to add to the
+// database). It reads the JSON from the request and fills
+// your Go struct, so you can use that data (for example,
+// to add it to the database).
 func ParseJSON(r *http.Request, payload any) error {
 	if r.Body == nil {
 		return fmt.Errorf("request body is empty")
 	}
 	return json.NewDecoder(r.Body).Decode(payload)
+	// Note: We don't close r.Body here because the http package
+	// automatically handles that after the handler returns.
 }
 
 // WriteJSON is used when your server gets data (like from a database)
@@ -40,6 +41,10 @@ func GetTokenFromRequest(r *http.Request) string {
 	tokenQuery := r.URL.Query().Get("token")
 
 	if tokenAuth != "" {
+		// Strip "Bearer " prefix if present
+		if len(tokenAuth) > 7 && tokenAuth[:7] == "Bearer " {
+			return tokenAuth[7:]
+		}
 		return tokenAuth
 	}
 

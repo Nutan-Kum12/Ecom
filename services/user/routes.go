@@ -15,11 +15,11 @@ import (
 
 type Handler struct {
 	// You can add dependencies like Store here if needed
-	store types.UserStore
+	store types.UserStore //
 }
 
 func NewHandler(store types.UserStore) *Handler {
-	return &Handler{store: store}
+	return &Handler{store: store} // Store injected
 }
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	// Define user-related routes here

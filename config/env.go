@@ -45,6 +45,8 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// env are always string in os package thats why we
+// use another func to get int values
 func getEnvAsInt(key string, fallback int64) int64 {
 	if value, ok := os.LookupEnv(key); ok {
 		i, err := strconv.ParseInt(value, 10, 64)

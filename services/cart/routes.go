@@ -26,8 +26,14 @@ func (h *Handler) RegisterRoutes(router *mux.Router) {
 }
 
 func (h *Handler) handleCheckout(w http.ResponseWriter, r *http.Request) {
+	// Get user ID from JWT token context
+	userID := auth.GetUserIDFromContext(r.Context())
+	if userID == -1 {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("user not authenticated"))
+		return
+	}
+	
 	// Get JSON payload
-	userID := 0
 	var cart types.CartCheckoutPayload
 	if err := utils.ParseJSON(r, &cart); err != nil {
 		utils.WriteError(w, http.StatusBadRequest, err)
